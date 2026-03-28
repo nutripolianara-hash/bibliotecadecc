@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Biblioteca de Condutas · Nutri que Lucra</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1a1410;--ink-med:#2d2218;
+  --gold:#9d8768;--gold-dark:#6b5740;--gold-light:#c4b49e;--gold-pale:#f5efe8;
+  --cream:#faf7f3;--sand:#f0e9df;--muted:#7a6a58;--ghost:#b09880;--white:#fff;
+  --green:#2a6e47;--green-dark:#1b3d27;--green-pale:#edf7f1;
+  --red:#c0392b;--red-pale:#fdf0ee;--blue:#2563a8;--blue-pale:#eef4fd;
+  --purple:#6b21a8;--purple-pale:#f5f0ff;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Poppins',sans-serif;background:var(--cream);color:var(--ink);min-height:100vh}
+body::after{content:'';position:fixed;inset:0;background-image:radial-gradient(circle,rgba(157,135,104,.06) 1px,transparent 1px);background-size:32px 32px;pointer-events:none;z-index:0}
+
+/* SHELL */
+.shell{display:flex;height:100vh;position:relative;z-index:1}
+
+/* SIDEBAR */
+.sidebar{width:56px;flex-shrink:0;background:var(--ink);display:flex;align-items:flex-start;justify-content:center;padding:18px 0;position:sticky;top:0;height:100vh;z-index:200;overflow:visible}
+.s-sw{position:relative}
+.s-si{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);color:rgba(196,180,158,.55);pointer-events:none;transition:all .2s;z-index:1}
+.s-inp{width:36px;height:36px;font-family:'Poppins',sans-serif;font-size:12px;background:rgba(255,255,255,.07);border:1px solid rgba(196,180,158,.18);color:var(--white);border-radius:10px;padding:0;outline:none;transition:all .25s ease;cursor:pointer;caret-color:var(--gold-light)}
+.s-inp::placeholder{color:transparent;transition:color .2s}
+.s-inp:focus{width:280px;padding:9px 13px 9px 36px;cursor:text;border-color:rgba(196,180,158,.4);background:rgba(255,255,255,.1)}
+.s-inp:focus::placeholder{color:rgba(196,180,158,.35)}
+.s-inp:focus~.s-si{left:12px;top:50%;transform:translateY(-50%);color:rgba(196,180,158,.6)}
+.s-drop{display:none;position:absolute;top:calc(100% + 6px);left:0;width:300px;background:#1e1610;border:1px solid rgba(196,180,158,.2);border-radius:9px;z-index:9999;max-height:300px;overflow-y:auto;box-shadow:0 10px 32px rgba(0,0,0,.55)}
+.s-drop.open{display:block}
+.sd-item{padding:10px 14px;cursor:pointer;font-size:12px;color:rgba(255,255,255,.7);border-bottom:1px solid rgba(196,180,158,.07);transition:background .15s;line-height:1.4}
+.sd-item:last-child{border-bottom:none}
+.sd-item:hover{background:rgba(157,135,104,.15);color:var(--white)}
+.sd-item .sd-cat{font-size:10px;color:rgba(196,180,158,.4);display:block;margin-top:2px}
+.sd-empty{padding:14px;font-size:12px;color:rgba(196,180,158,.4);font-style:italic;text-align:center}
+
+/* MAIN */
+.main{flex:1;overflow-y:auto;height:100vh}
+
+/* HOME */
+.home-hero{background:linear-gradient(135deg,var(--ink),var(--ink-med));padding:52px 48px 40px;position:relative;overflow:hidden}
+.home-hero::before{content:'';position:absolute;right:-60px;top:-60px;width:280px;height:280px;border-radius:50%;background:rgba(157,135,104,.06)}
+.hbadge{display:inline-block;font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-light);border:1px solid rgba(196,180,158,.2);padding:5px 16px;border-radius:99px;margin-bottom:16px}
+.htitle{font-family:'Lora',serif;font-size:clamp(24px,4vw,36px);font-weight:600;color:var(--white);line-height:1.15;margin-bottom:10px;position:relative;z-index:1}
+.htitle em{color:var(--gold)}
+.hsub{font-size:13px;font-weight:300;color:rgba(255,255,255,.5);line-height:1.7;max-width:500px;position:relative;z-index:1}
+.home-crime{padding:10px 48px;background:rgba(192,57,43,.1);border-bottom:1px solid rgba(192,57,43,.15);font-size:11px;color:rgba(255,190,170,.85);display:flex;align-items:center;gap:8px}
+
+/* FILTROS */
+.home-filters{padding:20px 48px 0;display:flex;gap:8px;flex-wrap:wrap}
+.hf-btn{padding:6px 16px;border:1.5px solid rgba(196,180,158,.3);border-radius:99px;font-size:11.5px;color:var(--muted);cursor:pointer;background:none;font-family:'Poppins',sans-serif;transition:all .18s}
+.hf-btn:hover{border-color:var(--gold);color:var(--gold-dark);background:var(--gold-pale)}
+.hf-btn.on{border-color:var(--gold-dark);background:var(--gold-pale);color:var(--gold-dark);font-weight:500}
+
+/* GRID */
+.proto-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:11px;padding:20px 48px 60px}
+.pcard{background:var(--white);border:1px solid rgba(196,180,158,.2);border-radius:13px;padding:18px;cursor:pointer;transition:all .2s;box-shadow:0 2px 10px rgba(107,87,64,.05);display:flex;flex-direction:column;gap:9px}
+.pcard:hover{border-color:rgba(157,135,104,.35);transform:translateY(-2px);box-shadow:0 8px 22px rgba(107,87,64,.1)}
+.pcard.hidden{display:none}
+.pcard-top{display:flex;align-items:center;gap:10px}
+.pcard-icon{font-size:20px;width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid transparent}
+.pcard-name{font-family:'Lora',serif;font-size:13px;font-weight:600;color:var(--ink);line-height:1.3}
+.pcard-obj{font-size:11.5px;color:var(--muted);line-height:1.5}
+.pcard-tag{font-size:10px;font-weight:500;padding:3px 10px;border-radius:99px;width:fit-content;margin-top:auto}
+
+/* COR POR CATEGORIA */
+.cat-saude-mulher .pcard-icon{background:#fdf0f6;border-color:rgba(192,57,115,.15)}
+.cat-digestivo .pcard-icon{background:#fff8ee;border-color:rgba(180,120,30,.15)}
+.cat-metabolismo .pcard-icon{background:#eef4fd;border-color:rgba(37,99,168,.15)}
+.cat-clinica .pcard-icon{background:var(--green-pale);border-color:rgba(42,110,71,.15)}
+.cat-materno .pcard-icon{background:#f5f0ff;border-color:rgba(107,33,168,.15)}
+.cat-recuperacao .pcard-icon{background:#fff8ee;border-color:rgba(180,120,30,.15)}
+.tag-mulher{color:#a0255f;background:#fdf0f6;border:1px solid rgba(192,57,115,.2)}
+.tag-digestivo{color:#8a5200;background:#fff8ee;border:1px solid rgba(180,120,30,.2)}
+.tag-metabolismo{color:var(--blue);background:var(--blue-pale);border:1px solid rgba(37,99,168,.2)}
+.tag-clinica{color:var(--green);background:var(--green-pale);border:1px solid rgba(42,110,71,.2)}
+.tag-materno{color:var(--purple);background:var(--purple-pale);border:1px solid rgba(107,33,168,.2)}
+.tag-recuperacao{color:#8a5200;background:#fff8ee;border:1px solid rgba(180,120,30,.2)}
+
+/* PANEL PROTOCOLO */
+.panel{display:none;flex-direction:column;min-height:100vh}
+.panel.active{display:flex}
+.p-hdr{padding:26px 44px 20px;border-bottom:1px solid rgba(196,180,158,.15);background:var(--white);position:sticky;top:0;z-index:10}
+.p-back{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ghost);cursor:pointer;margin-bottom:12px;border:none;background:none;font-family:'Poppins',sans-serif;padding:0;transition:color .15s}
+.p-back:hover{color:var(--muted)}
+.p-title-row{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.p-icon-title{display:flex;align-items:center;gap:14px}
+.p-ico{font-size:26px;width:50px;height:50px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.p-name{font-family:'Lora',serif;font-size:21px;font-weight:600;color:var(--ink)}
+.p-cat{font-size:11px;color:var(--ghost);margin-top:3px}
+.btn-copy-all{display:flex;align-items:center;gap:7px;padding:9px 18px;background:linear-gradient(135deg,var(--gold-dark),var(--gold));color:var(--white);border:none;border-radius:99px;font-family:'Poppins',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:all .2s}
+.btn-copy-all:hover{opacity:.9;transform:translateY(-1px)}
+.btn-copy-all.copied{background:linear-gradient(135deg,var(--green-dark),var(--green))}
+
+.p-body{padding:28px 44px 64px;flex:1}
+
+/* SEÇÕES */
+.sec{margin-bottom:24px}
+.sec-title{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-dark);margin-bottom:12px;display:flex;align-items:center;gap:10px}
+.sec-title::after{content:'';flex:1;height:1px;background:rgba(196,180,158,.2)}
+
+/* OBJETIVO */
+.obj-box{background:var(--gold-pale);border:1px solid rgba(196,180,158,.25);border-radius:11px;padding:16px 18px;font-size:13px;color:var(--ink);line-height:1.7}
+.obj-box strong{font-weight:600}
+
+/* MACROS */
+.macros-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.macro-card{flex:1;min-width:100px;background:var(--white);border:1px solid rgba(196,180,158,.2);border-radius:10px;padding:14px;text-align:center}
+.macro-pct{font-family:'Lora',serif;font-size:22px;font-weight:700;color:var(--gold-dark)}
+.macro-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-top:3px}
+.macro-bar-wrap{height:10px;background:var(--sand);border-radius:99px;overflow:hidden;margin-top:10px;margin-bottom:6px;display:flex}
+.macro-bar-fill{height:100%;border-radius:99px}
+.macro-bar-fill.carb{background:linear-gradient(90deg,#9d8768,#c4b49e)}
+.macro-bar-fill.prot{background:linear-gradient(90deg,#2a6e47,#3a9a67)}
+.macro-bar-fill.lip{background:linear-gradient(90deg,#b8860b,#d4a017)}
+.macro-leg{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+.ml-item{display:flex;align-items:center;gap:5px}
+.ml-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.macro-estrategia{font-size:12.5px;color:var(--muted);line-height:1.65;margin-top:10px;padding:11px 14px;background:var(--cream);border-radius:8px;font-style:italic}
+
+/* LISTAS */
+.item-list{display:flex;flex-direction:column;gap:7px}
+.list-item{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border-radius:9px;font-size:13px;line-height:1.5;border:1px solid transparent}
+.list-item.orientacao{background:var(--blue-pale);border-color:rgba(37,99,168,.12)}
+.list-item.orientacao .li-ico{color:var(--blue)}
+.list-item.nutriente{background:var(--gold-pale);border-color:rgba(196,180,158,.25)}
+.list-item.nutriente .li-ico{color:var(--gold-dark)}
+.list-item.comer{background:var(--green-pale);border-color:rgba(42,110,71,.12)}
+.list-item.comer .li-ico{color:var(--green)}
+.list-item.evitar{background:var(--red-pale);border-color:rgba(192,57,43,.12)}
+.list-item.evitar .li-ico{color:var(--red)}
+.list-item.monitor{background:var(--cream);border-color:rgba(196,180,158,.2)}
+.list-item.monitor .li-ico{color:var(--muted)}
+.li-ico{font-size:13px;flex-shrink:0;margin-top:1px}
+
+/* REFERÊNCIAS */
+.refs{display:flex;flex-direction:column;gap:6px}
+.ref-item{font-size:12px;color:var(--muted);line-height:1.6;padding-left:14px;position:relative}
+.ref-item::before{content:'';position:absolute;left:0;top:9px;width:5px;height:1px;background:var(--gold)}
+
+@media(max-width:768px){
+  .shell{flex-direction:column;height:auto}
+  .sidebar{width:100%;height:auto;position:relative}
+  .main{height:auto;overflow:visible}
+  .home-hero,.home-crime,.home-filters,.proto-grid,.p-hdr,.p-body{padding-left:20px;padding-right:20px}
+  .proto-grid{grid-template-columns:1fr 1fr}
+  .macros-row{flex-direction:column}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- SIDEBAR (só lupa) -->
+<aside class="sidebar">
+  <div class="s-sw">
+    <svg class="s-si" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
+    <input class="s-inp" id="searchInput" type="text" placeholder="Buscar protocolo..." oninput="doSearch(this.value)" onfocus="doSearch(this.value)" onblur="setTimeout(closeDrop,200)" autocomplete="off">
+    <div class="s-drop" id="searchDrop"></div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main" id="mainArea">
+
+<!-- HOME -->
+<div id="panel-home" class="panel active">
+  <div class="home-hero">
+    <div class="hbadge">✦ Exclusivo para alunas · Nutri que Lucra</div>
+    <h1 class="htitle">Biblioteca de<br><em>Condutas Clínicas</em></h1>
+    <p class="hsub">35 protocolos nutricionais completos com objetivos, macros, nutrientes prioritários, alimentos e referências bibliográficas. Pronto para usar na prática clínica.</p>
+  </div>
+  <div class="home-crime">🔒 Material de uso exclusivo das alunas. Compartilhar com terceiros é crime previsto na Lei de Direitos Autorais (Lei 9.610/98).</div>
+  <div class="home-filters">
+    <button class="hf-btn on" onclick="filterHome('all',this)">Todos</button>
+    <button class="hf-btn" onclick="filterHome('saude-mulher',this)">Saúde da Mulher</button>
+    <button class="hf-btn" onclick="filterHome('digestivo',this)">Saúde Digestiva</button>
+    <button class="hf-btn" onclick="filterHome('metabolismo',this)">Metabolismo</button>
+    <button class="hf-btn" onclick="filterHome('clinica',this)">Nutrição Clínica</button>
+    <button class="hf-btn" onclick="filterHome('materno',this)">Materno Infantil</button>
+    <button class="hf-btn" onclick="filterHome('recuperacao',this)">Recuperação</button>
+  </div>
+  <div class="proto-grid" id="protoGrid"></div>
+</div>
+
+<!-- PANEL PROTOCOLO (dinâmico) -->
+<div id="panel-proto" class="panel">
+  <div class="p-hdr">
+    <button class="p-back" onclick="showHome()">← Voltar</button>
+    <div class="p-title-row">
+      <div class="p-icon-title">
+        <div class="p-ico" id="p-ico"></div>
+        <div><div class="p-name" id="p-name"></div><div class="p-cat" id="p-cat"></div></div>
+      </div>
+      <button class="btn-copy-all" id="btnCopyAll" onclick="copyProto()">📋 Copiar protocolo</button>
+    </div>
+  </div>
+  <div class="p-body" id="p-body"></div>
+</div>
+
+</main>
+</div>
+
+<script>
+// ══ DADOS DOS PROTOCOLOS ══════════════════════════
+const PROTOS = [
+  // SAÚDE DA MULHER
+  {
+    id:'sop', cat:'saude-mulher', icon:'🌸', nome:'SOP',
+    catLabel:'Saúde da Mulher',
+    objetivo:'Melhorar resistência insulínica, modular o equilíbrio hormonal e reduzir sintomas androgênicos, favorecendo composição corporal e saúde metabólica.',
+    desc:'Protocolo nutricional para mulheres com SOP, focado no controle da insulina, apoio hormonal e redução do hiperandrogenismo. Combina ajuste alimentar com foco em estabilidade glicêmica e inclusão de alimentos que favorecem sensibilidade à insulina.',
+    macros:{c:[40,45],p:[25,30],l:[25,30],estrategia:'Proporção pensada para controlar insulina, promover saciedade e otimizar o estímulo muscular.'},
+    orientacoes:['Aumentar e distribuir consumo proteico ao longo do dia','Inserir treinos de resistência para aumentar massa magra','Evitar longos períodos de jejum','Considerar suplementação quando necessário: creatina, vitamina D'],
+    nutrientes:['Proteínas completas: base do estímulo muscular','Leucina: gatilho anabólico essencial','Creatina: melhora força e sensibilidade à insulina','Vitamina D: modulação hormonal','Ômega-3: redução de inflamação e apoio metabólico'],
+    comer:['Carnes magras, peixes, ovos','Laticínios naturais, leguminosas','Quinoa e cereais integrais'],
+    evitar:['Dietas extremamente restritivas','Jejuns prolongados','Excesso de álcool','Alimentos que promovem picos glicêmicos'],
+    monitor:['Composição corporal: atenção ao aumento de massa magra','Resistência insulínica e resposta glicêmica','Sinais de hiperandrogenismo: acne, queda de cabelo, ciclos irregulares','Exames: vitamina D, perfil lipídico e glicemia'],
+    refs:['Teede, H. et al. (2018). International PCOS guideline. Human Reproduction, 33(9), 1602–1618.','Moran, L. et al. (2013). Dietary composition in PCOS. AJCN, 98(1), 353–368.']
+  },
+  {
+    id:'endometriose', cat:'saude-mulher', icon:'🌺', nome:'Endometriose',
+    catLabel:'Saúde da Mulher',
+    objetivo:'Reduzir dor pélvica, modular inflamação sistêmica, equilibrar o ambiente hormonal e melhorar a qualidade de vida.',
+    desc:'Estratégia nutricional focada em reduzir inflamação, diminuir estímulos estrogênicos excessivos e apoiar o funcionamento intestinal. Utiliza compostos anti-inflamatórios, fitoquímicos e nutrientes que minimizam dor, inchaço e tensão pélvica.',
+    macros:{c:[40,45],p:[30,35],l:[20,25],estrategia:'Proporção para estabilizar glicemia, reduzir metabolismo inflamatório e favorecer síntese hormonal equilibrada.'},
+    orientacoes:['Eliminar glúten e laticínios (altamente inflamatórios para muitas pacientes)','Aumentar alimentos anti-inflamatórios: cúrcuma, gengibre, frutas vermelhas','Reduzir estrogênio ambiental: evitar plásticos e pesticidas','Manter peso saudável para reduzir carga estrogênica','Evitar cafeína em excesso'],
+    nutrientes:['Ômega-3: anti-inflamatório potente','NAC (N-acetilcisteína): melhora dor e reduz cistos','Curcumina: regula vias inflamatórias','Resveratrol: modula estrogênio e reduz dor','Magnésio: relaxamento muscular e redução de cólicas'],
+    comer:['Peixes gordos: salmão, sardinha','Vegetais crucíferos: brócolis, couve-flor, repolho','Frutas vermelhas, oleaginosas','Sementes de linhaça e chia','Azeite extra-virgem, gengibre e cúrcuma'],
+    evitar:['Glúten e laticínios','Carne vermelha em excesso','Açúcar refinado e cafeína em excesso','Alimentos fritos e ultraprocessados'],
+    monitor:['Frequência e intensidade da dor pélvica','Variação dos sintomas ao longo do ciclo','Marcadores inflamatórios: estradiol, progesterona, PCR','Saúde intestinal e tolerância às fibras'],
+    refs:['Santoro, L. et al. (2021). The role of nutrition in endometriosis. Nutrients, 13(1), 1–15.','Porpora, M. G. et al. (2013). N-acetylcysteine effects on endometriosis. Evid Based Complement Alternat Med.']
+  },
+  {
+    id:'tpm', cat:'saude-mulher', icon:'🌙', nome:'TPM',
+    catLabel:'Saúde da Mulher',
+    objetivo:'Amenizar os sintomas físicos, emocionais e comportamentais do período pré-menstrual.',
+    desc:'Modulação hormonal via alimentação, ajustando nutrientes-chave que influenciam humor, energia, retenção de líquidos e sensibilidade emocional na fase pré-menstrual.',
+    macros:{c:[45,50],p:[20,25],l:[25,30],estrategia:'Nutrientes que estabilizam neurotransmissores e diminuem picos inflamatórios na fase luteal.'},
+    orientacoes:['Diminuir ingestão de sal, especialmente na segunda metade do ciclo','Reforçar magnésio na rotina alimentar','Limitar ou evitar cafeína: potencializa irritabilidade e ansiedade','Manter exercícios leves: aeróbicos ou relaxantes'],
+    nutrientes:['Magnésio: regulação do humor e redução de cólicas','Vitamina B6: equilíbrio hormonal e humor','Ômega-3: ação anti-inflamatória','Cálcio: redução de sintomas físicos e emocionais','Vitamina E: antioxidante e apoio hormonal'],
+    comer:['Verduras e legumes folhosos','Oleaginosas: nozes, castanhas, amêndoas','Peixes ricos em ômega-3','Frutas variadas, cereais integrais'],
+    evitar:['Excesso de sal','Açúcares refinados','Café e bebidas com estimulantes','Álcool'],
+    monitor:['Sinais e sintomas ao longo do ciclo: intensidade e frequência','Variações de humor: irritabilidade, ansiedade, compulsão','Retenção de líquidos e desconfortos físicos','Padrões de sono e energia'],
+    refs:['Whelan, A. M. et al. (2009). Herbs, vitamins and minerals in PMS. Can J Clin Pharmacol, 16(3).','Bertone-Johnson, E. R. et al. (2005). Calcium and vitamin D intake and risk of premenstrual syndrome. JAMA.']
+  },
+  {
+    id:'menopausa', cat:'saude-mulher', icon:'🌿', nome:'Menopausa',
+    catLabel:'Saúde da Mulher',
+    objetivo:'Reduzir sintomas vasomotores, apoiar equilíbrio hormonal e preservar saúde óssea.',
+    desc:'Protocolo para modular sintomas como ondas de calor, constipação, ganho de peso e perda óssea. Combina alimentos que equilibram o eixo hormonal, fibras benéficas e anti-inflamatórios.',
+    macros:{c:[50,55],p:[20,25],l:[25,30],estrategia:'Sustentar energia, controlar peso e otimizar saúde intestinal sem sobrecarregar a digestão.'},
+    orientacoes:['Incluir probióticos diariamente','Aumentar fibras gradualmente para evitar desconforto','Evitar alimentos irritantes','Garantir hidratação consistente'],
+    nutrientes:['Probióticos: equilíbrio intestinal e melhora do humor','Prebióticos: alimento para a microbiota benéfica','Glutamina: regeneração da mucosa intestinal','Fibras solúveis: melhora do trânsito e saciedade','Enzimas digestivas: absorção e redução de desconfortos'],
+    comer:['Iogurte natural, vegetais fermentados: chucrute, kimchi','Frutas com casca, cereais integrais','Caldos nutritivos e leves'],
+    evitar:['Ultraprocessados e açúcar em excesso','Gorduras trans','Álcool: piora ondas de calor','Temperos fortes e alimentos irritantes'],
+    monitor:['Frequência e intensidade das ondas de calor','Saúde intestinal e microbiota','Peso e composição corporal','Densidade óssea e exames hormonais'],
+    refs:['Baber, R. J. et al. (2016). IMS Recommendations on menopause. Climacteric, 19(2), 109–150.','Shifren, J. L. & Gass, M. L. (2014). The NAMS Menopause Practice Guidelines. Menopause.']
+  },
+  {
+    id:'climaterio', cat:'saude-mulher', icon:'🍃', nome:'Climatério',
+    catLabel:'Saúde da Mulher',
+    objetivo:'Oferecer suporte nutricional durante a transição do climatério, reduzindo fogachos, irritabilidade e insônia.',
+    desc:'Foco em alimentos que modulam o estrogênio, fortalecem os ossos e reduzem sintomas vasomotores. Inclui fitoestrogênios naturais e controle glicêmico para prevenir fogachos.',
+    macros:{c:[45,50],p:[25,30],l:[20,25],estrategia:'Estabilizar energia, minimizar variações glicêmicas (gatilhos de fogacho) e favorecer produção hormonal equilibrada.'},
+    orientacoes:['Incluir alimentos com fitoestrogênios naturais: soja, linhaça','Manter peso corporal adequado','Praticar exercícios de força e impacto para preservar massa óssea','Identificar e evitar gatilhos de fogacho: álcool, cafeína, comidas muito quentes','Priorizar boa higiene do sono'],
+    nutrientes:['Fitoestrogênios: modulação hormonal natural','Cálcio e vitamina D: saúde óssea','Magnésio: relaxamento e qualidade do sono','Ômega-3: redução de inflamação','Isoflavonas de soja: redução de sintomas vasomotores'],
+    comer:['Soja e derivados: tofu, missô, edamame','Linhaça, sementes de gergelim','Laticínios com baixo teor de gordura','Vegetais verde-escuros, frutas variadas'],
+    evitar:['Álcool e cafeína em excesso','Alimentos muito apimentados','Açúcares refinados','Ultraprocessados'],
+    monitor:['Frequência e intensidade dos fogachos','Qualidade do sono e humor','Densidade óssea periodicamente','Perfil hormonal e lipídico'],
+    refs:['Pérez-López, F. R. et al. (2009). Phytoestrogens and climacteric symptoms. Gynecol Endocrinol.','Davis, S. R. et al. (2015). Understanding weight gain at menopause. Climacteric, 18(3).']
+  },
+  {
+    id:'fertilidade', cat:'saude-mulher', icon:'🌟', nome:'Fertilidade',
+    catLabel:'Saúde da Mulher',
+    objetivo:'Promover ambiente metabólico e hormonal favorável para aumentar a fertilidade feminina e masculina.',
+    desc:'Nutrientes essenciais à saúde reprodutiva, redução de toxinas e otimização do equilíbrio hormonal. Auxilia na qualidade dos gametas, melhora o ciclo menstrual e apoia produção hormonal masculina.',
+    macros:{c:[45,50],p:[25,30],l:[20,25],estrategia:'Manter ovulação saudável, regular ciclos, sustentar estabilidade glicêmica e apoiar produção hormonal.'},
+    orientacoes:['Reduzir toxinas ambientais: plásticos, pesticidas, corantes','Aumentar ingestão de alimentos antioxidantes','Manter peso saudável','Reduzir estresse (impacta diretamente a ovulação)','Evitar tabagismo e álcool','Reduzir cafeína a quantidades moderadas'],
+    nutrientes:['Ácido fólico: essencial para ovulação e prevenção de defeitos no tubo neural','Coenzima Q10: melhora qualidade dos óvulos e espermatozoides','Ômega-3: modulação hormonal e menor inflamação','Zinco: fundamental para testosterona e espermatogênese','Vitamina E: potente antioxidante para saúde reprodutiva'],
+    comer:['Vegetais folhosos ricos em folato','Frutas vermelhas, peixes gordos','Oleaginosas, sementes, abacate','Ovos, cereais integrais'],
+    evitar:['Tabagismo e álcool','Cafeína excessiva','Alimentos ultraprocessados','Gorduras trans e açúcar refinado'],
+    monitor:['Regularidade e qualidade do ciclo menstrual','Qualidade espermática, quando aplicável','Peso e IMC: sobrepeso e baixo peso prejudicam fertilidade','Exames hormonais: FSH, LH, AMH'],
+    refs:['Gaskins, A. J. & Chavarro, J. E. (2018). Diet and fertility. Am J Obstet Gynecol, 218(4).','Karimian, M. et al. (2021). Nutrition and sperm quality. Nutrition, 81, 110946.']
+  },
+  // SAÚDE DIGESTIVA
+  {
+    id:'gastrite', cat:'digestivo', icon:'🫃', nome:'Gastrite',
+    catLabel:'Saúde Digestiva',
+    objetivo:'Reduzir inflamação da mucosa gástrica, aliviar dor e desconforto e favorecer cicatrização.',
+    desc:'Proteção da mucosa gástrica, redução de acidez e controle de sintomas como queimação, dor e má digestão. Alimentação focada em texturas leves, baixa acidez e boa mastigação.',
+    macros:{c:[40,45],p:[25,30],l:[25,30],estrategia:'Estabilidade digestiva priorizando alimentos leves e de baixa irritação, evitando sobrecarga gástrica.'},
+    orientacoes:['Fazer refeições menores e mais frequentes','Evitar ingerir líquidos junto às refeições','Mastigar muito bem','Evitar jejum prolongado','Reduzir acidez: evitar café, frutas cítricas e alimentos muito condimentados','Não comer muito tarde da noite'],
+    nutrientes:['Glutamina: regeneração da mucosa','Zinco-carnosina: proteção e cicatrização gástrica','Probióticos: equilíbrio da microbiota','Vitamina D: apoio imunológico','Antioxidantes leves: redução de inflamação'],
+    comer:['Arroz, batata, mandioca, inhame','Frango cozido, peixe, ovos','Sopa de legumes, vegetais cozidos suaves','Frutas doces não ácidas: banana, maçã cozida, pera','Chá de camomila, erva-doce, hortelã suave'],
+    evitar:['Café, chá preto, bebidas energéticas','Cítricos, tomate, abacaxi','Frituras e gorduras em excesso','Temperos fortes: pimenta, curry, páprica picante','Refrigerantes e bebidas gasosas','Álcool e ultraprocessados'],
+    monitor:['Evolução da dor, queimação e refluxo','Frequência de náusea ou vômito','Relação entre alimentos e sintomas (diário alimentar)','Sinais de H. pylori, se houver suspeita'],
+    refs:['Sugano, K. et al. (2015). Kyoto global consensus on gastritis. Gut, 64(9), 1353–1367.','Moayyedi, P. et al. (2019). Management of dyspepsia and H. pylori. BMJ, 367, l6483.']
+  },
+  {
+    id:'refluxo', cat:'digestivo', icon:'🔥', nome:'Refluxo Gastroesofágico',
+    catLabel:'Saúde Digestiva',
+    objetivo:'Reduzir irritação do esôfago, minimizar episódios de refluxo e melhorar o funcionamento do esfíncter esofagiano inferior.',
+    desc:'Protocolo para diminuir a acidez gástrica, reduzir exposição do esôfago ao conteúdo ácido e fortalecer a mucosa esofágica. Inclui identificação e retirada de gatilhos alimentares.',
+    macros:{c:[50,55],p:[20,25],l:[20,25],estrategia:'Digestão mais leve, reduzir pressão intra-abdominal e minimizar episódios de refluxo.'},
+    orientacoes:['Evitar refeições grandes e volumosas','Mastigar com calma e comer sem pressa','Não deitar após comer: aguardar mínimo de 2 a 3h','Elevar a cabeceira da cama durante o sono','Identificar e evitar alimentos gatilho individuais'],
+    nutrientes:['Glutamina: recuperação da mucosa','Zinco-carnosina: proteção esofágica','DGL (alcaçuz deglicirrizinado): alívio da irritação','Aloe vera: acalma e reduz inflamação','Probióticos: melhora da saúde digestiva geral'],
+    comer:['Vegetais não ácidos: abobrinha, chuchu, batata, cenoura','Frutas não cítricas: banana, maçã, pera','Proteínas magras, cereais integrais leves','Chá de camomila'],
+    evitar:['Cítricos e frutas muito ácidas','Tomate e derivados, chocolate, menta','Alimentos gordurosos, cafeína','Frituras e molhos pesados','Álcool'],
+    monitor:['Frequência e intensidade dos episódios de refluxo','Identificação de gatilhos alimentares específicos','Qualidade do sono e impacto do refluxo noturno','Sinais de erosão dentária ou tosse crônica'],
+    refs:['Katz, P. O. et al. (2022). ACG Clinical Guideline for GERD. Am J Gastroenterol, 117(1), 27–56.','Ness-Jensen, E. et al. (2016). Lifestyle intervention in GERD. Clin Gastroenterol Hepatol.']
+  },
+  {
+    id:'sii', cat:'digestivo', icon:'🦠', nome:'Síndrome do Intestino Irritável',
+    catLabel:'Saúde Digestiva',
+    objetivo:'Reduzir desconfortos gastrointestinais, melhorar o padrão digestivo e favorecer qualidade de vida.',
+    desc:'Protocolo direcionado à SII, com estratégia de eliminação e reintrodução guiada. Combina redução de FODMAPs, suporte enzimático e alimentos que favorecem equilíbrio intestinal.',
+    macros:{c:[45,50],p:[20,25],l:[25,30],estrategia:'Eliminação controlada de alimentos fermentáveis seguida de reintrodução progressiva com suporte enzimático.'},
+    orientacoes:['Fase 1: Eliminação de alimentos com alto teor de FODMAPs','Fase 2: Reintrodução progressiva com avaliação de tolerância','Dar preferência a laticínios fermentados','Incluir fontes alternativas de cálcio','Observar reações digestivas após cada reintrodução'],
+    nutrientes:['Probióticos: equilíbrio intestinal e redução de sintomas','Cálcio e vitamina D: saúde óssea sem laticínios','Magnésio: relaxamento intestinal','Fibras solúveis em quantidade adequada','Glutamina: integridade da barreira intestinal'],
+    comer:['Laticínios sem lactose ou fermentados','Vegetais ricos em cálcio: brócolis, couve, gergelim','Peixes, oleaginosas, sementes','Frutas de baixo FODMAP: banana, morango, kiwi'],
+    evitar:['Leite e queijos frescos (fase de eliminação)','Trigo, cebola, alho em excesso','Maçã, pera e manga (ricas em frutose)','Alimentos com adoçantes como sorbitol e manitol'],
+    monitor:['Sintomas após ingestão de alimentos específicos','Tolerância durante a reintrodução','Frequência e consistência das evacuações','Níveis de estresse e ansiedade (impacto no intestino)'],
+    refs:['Lacy, B. E. et al. (2016). Bowel disorders: Rome IV criteria. Gastroenterology, 150(6).','Staudacher, H. M. et al. (2017). Low FODMAP diet in IBS. J Gastroenterol Hepatol.']
+  },
+  {
+    id:'celiaca', cat:'digestivo', icon:'🌾', nome:'Doença Celíaca',
+    catLabel:'Saúde Digestiva',
+    objetivo:'Eliminar completamente o glúten, promover recuperação da mucosa intestinal e prevenir complicações.',
+    desc:'Remoção total do glúten (trigo, centeio, cevada e derivados), com foco em anti-inflamatórios e nutrientes frequentemente deficientes. Inclui orientações contra contaminação cruzada.',
+    macros:{c:[45,50],p:[25,30],l:[20,25],estrategia:'Energia adequada, reparo da barreira intestinal e aporte nutricional completo mesmo sem cereais tradicionais.'},
+    orientacoes:['Eliminar 100% do glúten: até pequenas quantidades causam dano','Evitar contaminação cruzada: utensílios, superfícies e fritadeiras','Ler rótulos cuidadosamente: glúten pode estar em aditivos','Repor nutrientes deficientes: ferro, cálcio, vitamina D e B12','Refazer exames após meses de dieta para avaliar cicatrização'],
+    nutrientes:['Ferro: reposição de anemia comum em celíacos','Vitamina D: suporte imunológico e ósseo','Ômega-3: reduz inflamação intestinal','Zinco: regeneração tecidual','Antioxidantes: proteção celular'],
+    comer:['Arroz, milho, mandioca, batata, quinoa, amaranto','Carnes, ovos, peixes gordos','Vegetais variados, frutas, oleaginosas','Azeite e especiarias anti-inflamatórias'],
+    evitar:['Trigo, centeio, cevada e seus derivados','Farinhas tradicionais e pão convencional','Alimentos com glúten oculto: molhos industrializados, embutidos','Cerveja e bebidas fermentadas de cereais com glúten'],
+    monitor:['Exames: sorologia (anti-transglutaminase) após 6 a 12 meses de dieta','Sintomas digestivos e recuperação do peso','Densidade óssea periodicamente','Aderência à dieta sem glúten'],
+    refs:['Al-Toma, A. et al. (2019). EAN guidelines on celiac disease. Aliment Pharmacol Ther, 49(6).','Rubio-Tapia, A. et al. (2013). ACG Clinical Guidelines: Celiac Disease. Am J Gastroenterol.']
+  },
+  {
+    id:'lactose', cat:'digestivo', icon:'🥛', nome:'Intolerância à Lactose',
+    catLabel:'Saúde Digestiva',
+    objetivo:'Reduzir sintomas gastrointestinais relacionados ao consumo de lactose e garantir aporte nutricional adequado.',
+    desc:'Eliminação ou redução da lactose com escolha de substitutos nutritivos e uso estratégico de lactase. Abordagem individualizada respeitando diferentes níveis de tolerância.',
+    macros:{c:[35,40],p:[40,45],l:[15,20],estrategia:'Manter energia estável e boa digestibilidade, evitando desconfortos após ingestão de lactose.'},
+    orientacoes:['Evitar leite e derivados com lactose','Usar lactase quando houver consumo eventual de laticínios','Preferir laticínios zero lactose ou bebidas vegetais enriquecidas','Observar tolerância individual: varia muito entre pacientes','Manter hidratação diária'],
+    nutrientes:['Cálcio: repor via fontes alternativas','Vitamina D: absorção de cálcio','Probióticos: equilíbrio intestinal','Magnésio: saúde óssea e muscular','Polifenóis: saúde intestinal'],
+    comer:['Laticínios zero lactose','Vegetais ricos em cálcio: brócolis, couve, gergelim','Peixes com osso comestível: sardinha','Bebidas vegetais enriquecidas com cálcio','Oleaginosas e sementes'],
+    evitar:['Leite tradicional e queijos frescos','Sorvetes comuns','Qualquer alimento com lactose adicionada','Produtos com "leite em pó" na composição'],
+    monitor:['Sintomas após ingestão de laticínios: gases, inchaço, diarreia','Tolerância durante reintrodução','Ingestão de cálcio e vitamina D','Densidade óssea a longo prazo'],
+    refs:['Misselwitz, B. et al. (2019). Lactose malabsorption and intolerance. United European Gastroenterol J, 7(7).','Bayless, T. M. et al. (2017). Lactose intolerance and self-reported milk intolerance. Curr Gastroenterol Rep.']
+  },
+  {
+    id:'sensgluten', cat:'digestivo', icon:'🌾', nome:'Sensibilidade ao Glúten (Não Celíaca)',
+    catLabel:'Saúde Digestiva',
+    objetivo:'Reduzir sintomas associados ao consumo de glúten e apoiar função tireoidiana em casos de hipotireoidismo associado.',
+    desc:'Protocolo para indivíduos com sensibilidade ao glúten sem doença celíaca. Prioriza alimentos que favoreçam digestão leve, equilíbrio inflamatório e suporte à tireoide.',
+    macros:{c:[45,50],p:[20,25],l:[25,30],estrategia:'Energia contínua, melhora metabólica e suporte aos hormônios tireoidianos.'},
+    orientacoes:['Incluir iodo de forma moderada, evitando excesso','Reduzir consumo de vegetais goitrogênicos crus','Suplementar selênio quando necessário','Monitorar peso corporal e composição','Evitar produtos industrializados com glúten oculto'],
+    nutrientes:['Selênio: essencial para conversão de T4 em T3','Iodo: apoio à síntese hormonal','Zinco: função tireoidiana e imunidade','Ômega-3: redução de inflamação','Vitamina D: modulação imune e hormonal'],
+    comer:['Arroz, milho, mandioca, quinoa, batata','Carnes, peixes, ovos','Leguminosas, vegetais e frutas','Oleaginosas e castanhas'],
+    evitar:['Trigo, centeio, cevada e derivados','Produtos industrializados com glúten','Vegetais goitrogênicos crus em excesso: couve, brócolis'],
+    monitor:['Sintomas digestivos após consumo de glúten','TSH, T4 livre e T3','Peso e composição corporal','Selênio e zinco séricos'],
+    refs:['Catassi, C. et al. (2013). Non-celiac gluten sensitivity: new frontier. Nutrients, 5(10), 3839–3853.','Uhde, M. et al. (2016). Intestinal cell damage and systemic immune activation. Gut, 65(12).']
+  },
+  // METABOLISMO
+  {
+    id:'hipotireoidismo', cat:'metabolismo', icon:'🦋', nome:'Hipotireoidismo',
+    catLabel:'Saúde Endócrina / Metabolismo',
+    objetivo:'Apoiar a função tireoidiana, otimizar metabolismo e reduzir sintomas por meio de escolhas alimentares estratégicas.',
+    desc:'Abordagem com alimentos que favorecem produção e conversão dos hormônios tireoidianos, controle de inflamação e estratégias para manter energia estável ao longo do dia.',
+    macros:{c:[50,55],p:[25,30],l:[20,25],estrategia:'Manter energia constante, favorecer conversão de T4 em T3 e otimizar o metabolismo sem sobrecarregar o organismo.'},
+    orientacoes:['Não restringir calorias drasticamente: compromete a conversão de T3','Reduzir ultraprocessados e alimentos ricos em sódio','Aumentar potássio via frutas e vegetais naturais','Incluir ômega-3 para reduzir inflamação','Manter rotina alimentar regular e peso adequado'],
+    nutrientes:['Selênio: conversão de T4 em T3 e proteção tireoidiana','Zinco: síntese hormonal tireoidiana','Iodo: produção de hormônios tireoidianos','Vitamina D: imunidade e saúde tireoidiana','Magnésio: conversão hormonal e energia'],
+    comer:['Castanha-do-pará: 1 a 2 unidades/dia (selênio)','Peixes gordos: salmão, sardinha','Ovos, carnes magras','Frutas ricas em potássio: banana, abacate, melão','Vegetais folhosos, oleaginosas, cereais integrais'],
+    evitar:['Vegetais goitrogênicos crus em excesso: couve, brócolis','Sal em excesso','Alimentos muito processados','Álcool em excesso'],
+    monitor:['TSH, T4 livre e, se necessário, T3','Sintomas: fadiga, frio excessivo, inchaço, constipação','Qualidade do sono e ritmo intestinal','Peso e composição corporal'],
+    refs:['Chaker, L. et al. (2017). Hypothyroidism. The Lancet, 390(10101), 1550–1562.','Ventura, M. et al. (2017). Selenium and Thyroid Disease. Int J Endocrinol, 2017, 1297658.']
+  },
+  {
+    id:'hipertireoidismo', cat:'metabolismo', icon:'⚡', nome:'Hipertireoidismo',
+    catLabel:'Saúde Endócrina / Metabolismo',
+    objetivo:'Reduzir sintomas associados ao hipertireoidismo, modular inflamação e minimizar catabolismo muscular.',
+    desc:'Suporte nutricional focado em proteção muscular, controle de inflamação e adequação calórica para compensar o aumento do metabolismo basal típico do hipertireoidismo.',
+    macros:{c:[45,50],p:[30,35],l:[20,25],estrategia:'Alto aporte proteico para preservar massa magra, carboidratos para energia e gorduras boas para modulação hormonal.'},
+    orientacoes:['Aumentar calorias totais: metabolismo elevado aumenta demanda','Fracionar as refeições para garantir aporte energético contínuo','Evitar excesso de iodo: algas marinhas, suplementos','Reduzir estimulantes: café, chá mate, energéticos','Acompanhar com endocrinologista para monitorar evolução'],
+    nutrientes:['Proteínas: preservação de massa muscular','Cálcio e vitamina D: prevenção de perda óssea','Magnésio: relaxamento neuromuscular','Ômega-3: modulação anti-inflamatória','Antioxidantes: proteção contra estresse oxidativo elevado'],
+    comer:['Proteínas de qualidade: frango, peixe, ovos, leguminosas','Laticínios (se tolerados) para cálcio','Vegetais variados, frutas ricas em antioxidantes','Cereais integrais, oleaginosas'],
+    evitar:['Excesso de iodo: algas, suplementos com iodo','Cafeína e estimulantes','Álcool','Alimentos muito apimentados'],
+    monitor:['TSH, T4 livre e T3 com regularidade','Peso e composição corporal: risco de sarcopenia','Densidade óssea a longo prazo','Frequência cardíaca e pressão arterial'],
+    refs:['Bahn, R. S. et al. (2011). Hyperthyroidism and other causes of thyrotoxicosis. ATA/AACE guidelines. Thyroid, 21(6).','Celi, F. S. et al. (2010). Thyroid hormone disorders and cardiovascular risk. Heart, 96(9).']
+  },
+  {
+    id:'resistencia-insulinica', cat:'metabolismo', icon:'🩸', nome:'Resistência Insulínica',
+    catLabel:'Saúde Endócrina / Metabolismo',
+    objetivo:'Reduzir hiperinsulinemia, melhorar sensibilidade à insulina e prevenir evolução para diabetes tipo 2.',
+    desc:'Protocolo para modular a resposta glicêmica, reduzir picos de insulina e favorecer ambiente metabólico mais estável. Combina ajustes alimentares estratégicos e foco em fibras.',
+    macros:{c:[40,45],p:[25,30],l:[25,30],estrategia:'Saciedade, sem picos glicêmicos e melhora da resposta da insulina ao longo do dia.'},
+    orientacoes:['Controlar índice e carga glicêmica das refeições','Aumentar fibras solúveis: chia, aveia, leguminosas','Fracionar refeições para evitar grandes picos glicêmicos','Monitorar peso e composição corporal'],
+    nutrientes:['Cromo: melhora sensibilidade à insulina','Magnésio: participa da sinalização insulínica','Ácido alfa-lipoico: antioxidante para controle glicêmico','Berberina: favorece redução de glicemia e insulina','Inositol: melhora resistência insulínica e equilíbrio hormonal'],
+    comer:['Vegetais não amiláceos','Proteínas magras, oleaginosas','Cereais integrais, leguminosas','Frutas de baixo índice glicêmico'],
+    evitar:['Açúcares refinados e carboidratos simples','Bebidas adoçadas','Alimentos ultraprocessados','Álcool'],
+    monitor:['HOMA-IR, glicemia e HbA1c trimestralmente','Peso e composição corporal mensalmente','Padrão de fome e saciedade','Aderência ao plano alimentar'],
+    refs:['DeFronzo, R. et al. (2015). Type 2 diabetes mellitus. Nat Rev Dis Primers, 1, 15019.','ADA (2024). Standards of Medical Care in Diabetes. Diabetes Care, 47(Suppl 1).']
+  },
+  {
+    id:'sind-metabolica', cat:'metabolismo', icon:'📊', nome:'Síndrome Metabólica',
+    catLabel:'Saúde Endócrina / Metabolismo',
+    objetivo:'Intervir de forma integrada em resistência insulínica, dislipidemia, obesidade central e pressão arterial.',
+    desc:'Ajustes nutricionais que favorecem perda de peso, controle glicêmico, redução de inflamação e melhora do perfil cardiovascular de forma simultânea.',
+    macros:{c:[40,45],p:[25,30],l:[25,30],estrategia:'Modificação progressiva priorizando escolhas que reduzam resistência insulínica e promovam equilíbrio metabólico.'},
+    orientacoes:['Estimular perda de peso gradual e sustentável','Controlar porções e priorizar refeições equilibradas','Manter prática regular de exercícios físicos','Monitorar pressão arterial com frequência'],
+    nutrientes:['Ômega-3: melhora do perfil lipídico e inflamação','Magnésio: sensibilidade à insulina','Cromo: controle glicêmico','Coenzima Q10: função mitocondrial','Vitamina D: metabolismo e imunidade'],
+    comer:['Peixes ricos em gorduras boas','Vegetais não amiláceos: brócolis, couve, espinafre','Oleaginosas, cereais integrais, leguminosas'],
+    evitar:['Açúcares refinados e carboidratos simples','Gorduras saturadas em excesso','Sódio elevado','Álcool'],
+    monitor:['Glicemia, HbA1c, triglicerídeos, HDL, LDL mensalmente','Circunferência abdominal semanalmente','Pressão arterial regularmente','Peso e composição corporal'],
+    refs:['Alberti, K. G. et al. (2009). Harmonizing the metabolic syndrome. Circulation, 120(16).','Eckel, R. H. et al. (2005). The metabolic syndrome. The Lancet, 365(9468).']
+  },
+  {
+    id:'cetogenico', cat:'metabolismo', icon:'🥑', nome:'Protocolo Cetogênico',
+    catLabel:'Saúde Endócrina / Metabolismo',
+    objetivo:'Induzir cetose nutricional estratégica para melhorar composição corporal, foco mental e estabilidade energética.',
+    desc:'Protocolo para atingir e manter cetose com foco em performance. Gorduras de alta qualidade, proteínas moderadas e carboidratos mínimos. Inclui fases de adaptação e estratégias avançadas.',
+    macros:{c:[5,10],p:[20,25],l:[65,75],estrategia:'Manter cetose estável, preservar massa magra e fornecer combustível sustentado durante treinos.'},
+    orientacoes:['Reforçar hidratação com sódio, potássio e magnésio','Utilizar óleo MCT antes do treino para energia rápida','Evitar excesso de proteína para não reduzir cetose','Monitorar cetose com fitas ou sensor','Atenção à adaptação inicial: "keto flu"','Contraindicada para gestantes, lactantes e adolescentes'],
+    nutrientes:['Potássio: função muscular e nervosa','Carnitina: transporte de gordura para mitocôndrias','Selênio e zinco: metabolismo energético','Magnésio: previne cãibras','Sódio: equilíbrio eletrolítico essencial'],
+    comer:['Ovos, carnes e peixes','Queijos e laticínios integrais (pouca quantidade)','Abacate, oleaginosas, azeite, óleo de coco','Vegetais de baixo carboidrato: folhosos, brócolis, couve-flor'],
+    evitar:['Grãos, pães, massas, arroz','Frutas doces e tubérculos','Açúcares e mel','Bebidas alcoólicas e energéticas'],
+    monitor:['Nível de cetose: fitas ou medidor de cetona','Peso e composição corporal','Perfil lipídico (HDL, LDL, triglicerídeos)','Marcadores renais a longo prazo'],
+    refs:['Paoli, A. et al. (2013). Beyond weight loss: a review of the therapeutic uses of the KD. Eur J Clin Nutr, 67(8).','Westman, E. C. et al. (2007). Low-carbohydrate nutrition and metabolism. AJCN, 86(2).']
+  },
+  {
+    id:'cognitivo', cat:'metabolismo', icon:'🧠', nome:'Desempenho Cognitivo',
+    catLabel:'Saúde Endócrina / Metabolismo',
+    objetivo:'Aumentar foco, memória, clareza mental e eficiência cognitiva por meio de alimentação que favorece o cérebro.',
+    desc:'Modulação de neurotransmissores, energia neuronal e inflamação. Estratégia baseada em janela alimentar reduzida, melhora de ritmos circadianos e otimização cognitiva.',
+    macros:{c:[45,50],p:[20,25],l:[25,30],estrategia:'Energia estável ao cérebro, foco ao longo do dia e redução de inflamação que prejudica a memória.'},
+    orientacoes:['Manter janela alimentar de 8 a 10 horas para regular ritmo circadiano','Evitar comer até 3 horas antes de dormir','Garantir boa hidratação diária','Incluir eletrólitos para estabilidade cognitiva','Priorizar refeições leves no período noturno'],
+    nutrientes:['Melatonina: ritmo circadiano e consolidação da memória','Magnésio: relaxamento neuronal e redução de estresse','Ômega-3: melhora sinapses e plasticidade cerebral','Complexo B: energia cerebral e neurotransmissores','Eletrólitos: foco e estabilidade cognitiva'],
+    comer:['Alimentos integrais, proteínas magras','Vegetais variados','Frutas ricas em antioxidantes','Oleaginosas, peixes gordos'],
+    evitar:['Alimentos processados e açúcares simples','Cafeína à noite','Bebidas energéticas','Frituras e ultraprocessados'],
+    monitor:['Qualidade do sono e ritmo circadiano','Níveis de energia e clareza mental','Impacto da janela alimentar na cognição','Exames: B12, folato, vitamina D'],
+    refs:['Gómez-Pinilla, F. (2008). Brain foods: the effects of nutrients on brain function. Nat Rev Neurosci, 9(7).','Jacka, F. N. et al. (2017). A randomized controlled trial of dietary improvement for mental health. BMC Med, 15(1).']
+  },
+  // NUTRIÇÃO CLÍNICA
+  {
+    id:'anemia', cat:'clinica', icon:'🩸', nome:'Anemia Ferropriva',
+    catLabel:'Nutrição Clínica',
+    objetivo:'Corrigir deficiência de ferro, restaurar hemoglobina e prevenir novas recaídas.',
+    desc:'Otimização da absorção de ferro dietético (heme e não heme). Restauração dos estoques de ferritina, melhora dos sintomas e correção de deficiências associadas de B12 e folato.',
+    macros:{c:[45,55],p:[25,30],l:[20,25],estrategia:'Aporte proteico para suporte hematológico, carboidratos para energia e lipídeos que não interferem na absorção de ferro.'},
+    orientacoes:['Consumir fontes vegetais de ferro junto com vitamina C','Evitar café, chá preto, mate e cacau nas refeições principais','Reduzir laticínios próximos às refeições ricas em ferro','Fracionar ingestão de ferro ao longo do dia','Cozinhar em panelas de ferro quando possível','Investigar causas da anemia: perdas sanguíneas, baixa ingestão'],
+    nutrientes:['Ferro: principal nutriente para hemoglobina','Vitamina C: aumenta absorção de ferro vegetal','Ácido fólico: suporte à produção de células sanguíneas','Vitamina B12: prevenção de anemia megaloblástica','Cobre e zinco: cofatores na formação de hemácias'],
+    comer:['Carnes magras e vísceras: excelente fonte de ferro heme','Feijão, lentilha, grão-de-bico','Couve, espinafre, brócolis','Frutas ricas em vitamina C: laranja, acerola, kiwi','Cereais fortificados, oleaginosas'],
+    evitar:['Chá preto, café, mate nas refeições','Laticínios em excesso nas refeições principais','Refrigerantes (fosfatos prejudicam absorção)'],
+    monitor:['Hemograma completo','Ferritina e saturação de transferrina','Vitamina B12 e ácido fólico','Resposta clínica: fadiga, palidez, queda de cabelo'],
+    refs:['Camaschella, C. (2015). Iron-deficiency anemia. N Engl J Med, 372(19), 1832–1843.','WHO (2011). Haemoglobin concentrations for the diagnosis of anaemia. WHO/NMH/NHD/MNM/11.1.']
+  },
+  {
+    id:'osteoporose', cat:'clinica', icon:'🦴', nome:'Osteoporose',
+    catLabel:'Nutrição Clínica',
+    objetivo:'Preservar densidade mineral óssea, reduzir risco de fraturas e garantir aporte de cálcio, vitamina D e proteínas.',
+    desc:'Fortalecimento ósseo, otimização de absorção de minerais e redução de perda progressiva. Nutrientes-chave para remodelação óssea e alimentos anti-inflamatórios.',
+    macros:{c:[30,35],p:[25,30],l:[35,40],estrategia:'Otimizar absorção de cálcio, manter massa magra e oferecer energia estável para suporte muscular e ósseo.'},
+    orientacoes:['Garantir ingestão diária de cálcio','Associar vitamina D e K2 para melhor absorção','Não exagerar no sal: piora perda óssea','Incluir alimentos ricos em magnésio e fósforo','Praticar exercícios de impacto e resistência, quando liberado','Evitar dietas muito restritivas'],
+    nutrientes:['Cálcio: principal mineral estrutural ósseo','Vitamina D: aumenta absorção intestinal de cálcio','Vitamina K2: direciona cálcio para os ossos','Magnésio: mineralização óssea','Fósforo: componente fundamental da matriz óssea'],
+    comer:['Laticínios bem tolerados','Vegetais verde-escuros','Peixes com ossos: sardinha','Oleaginosas e sementes','Ovos'],
+    evitar:['Carboidratos refinados','Excesso de cafeína','Refrigerantes: ricos em fósforo desequilibrante','Sal em excesso e álcool'],
+    monitor:['Densitometria óssea regularmente','Vitamina D e PTH','Ingestão diária de cálcio e vitamina D','Risco de quedas e fraturas'],
+    refs:['Cosman, F. et al. (2014). Clinician guide to prevention and treatment of osteoporosis. Osteoporos Int, 25(10).','Cashman, K. D. (2015). Diet, nutrition, and bone health. J Nutr, 137(11 Suppl).']
+  },
+  {
+    id:'hipertrofia', cat:'clinica', icon:'💪', nome:'Hipertrofia Muscular',
+    catLabel:'Nutrição Clínica',
+    objetivo:'Promover hipertrofia muscular saudável, aumentar massa magra, força e desempenho.',
+    desc:'Oferta adequada de calorias, proteínas completas, carboidratos estratégicos e lipídeos de qualidade. Combinado a treino resistido para crescimento muscular progressivo e sustentável.',
+    macros:{c:[45,55],p:[20,25],l:[25,30],estrategia:'Síntese proteica, energia para treinos intensos e otimização da recuperação muscular.'},
+    orientacoes:['Garantir superávit calórico leve: 5 a 15%','Consumir proteína distribuída ao longo do dia','Ingerir carboidratos no pré e pós-treino','Manter hidratação adequada','Priorizar sono reparador: mais de 7h'],
+    nutrientes:['Leucina: gatilho da síntese proteica','Creatina: força e aumento de massa magra','Vitamina D: função muscular e hormonal','Magnésio: desempenho e recuperação','Ômega-3: redução de inflamação muscular pós-treino'],
+    comer:['Ovos, frango, peixe e carne magra','Arroz, batata, mandioca, aveia','Oleaginosas, leguminosas, azeite'],
+    evitar:['Açúcares adicionados','Ultraprocessados e frituras','Refrigerantes','Álcool em excesso'],
+    monitor:['Evolução de peso e composição corporal','Aumento de força e desempenho nos treinos','Ingestão proteica diária','Sono e recuperação muscular'],
+    refs:['Morton, R. W. et al. (2018). A systematic review, meta-analysis and meta-regression of the effect of protein supplementation on resistance training-induced gains. Br J Sports Med, 52(6).','Stokes, T. et al. (2018). Recent perspectives regarding the role of dietary protein. Nutrients, 10(2).']
+  },
+  {
+    id:'fibromialgia', cat:'clinica', icon:'🌀', nome:'Fibromialgia',
+    catLabel:'Nutrição Clínica',
+    objetivo:'Reduzir dor muscular, fadiga e melhorar qualidade do sono por meio de alimentação anti-inflamatória.',
+    desc:'Redução de inflamação sistêmica, modulação da dor e melhora do padrão de sono. Alimentos anti-inflamatórios, fontes de magnésio e nutrientes envolvidos na produção de energia.',
+    macros:{c:[45,50],p:[25,30],l:[20,25],estrategia:'Energia contínua, redução de inflamação e apoio à síntese energética mitocondrial, evitando oscilações glicêmicas.'},
+    orientacoes:['Aumentar consumo de alimentos ricos em magnésio','Evitar cafeína após 14h','Manter rotina de horários para regular ritmo circadiano','Praticar técnicas de relaxamento diário','Reduzir ultraprocessados'],
+    nutrientes:['Magnésio: relaxamento muscular e redução da dor','Vitamina D: modulação imune e inflamatória','Ômega-3: ação anti-inflamatória','Coenzima Q10: suporte à função mitocondrial','Adaptógenos: equilíbrio do sistema de estresse'],
+    comer:['Vegetais folhosos, peixes gordos','Oleaginosas: nozes, castanhas, amêndoas','Frutas vermelhas: anti-inflamatórias','Chás calmantes: camomila, melissa, lavanda'],
+    evitar:['Cafeína após 14h','Açúcares refinados e ultraprocessados','Álcool','Frituras e gorduras saturadas em excesso'],
+    monitor:['Escala de dor muscular regularmente','Qualidade do sono: diário ou escala','Níveis de vitamina D e magnésio','Impacto do estresse nos sintomas'],
+    refs:['Holton, K. F. (2016). The role of diet in the treatment of fibromyalgia. Pain Manag, 6(4).','Miyake, Y. et al. (2020). Magnesium intake and fibromyalgia. Int J Environ Res Public Health.']
+  },
+  {
+    id:'queda-cabelo', cat:'clinica', icon:'💇', nome:'Queda de Cabelo',
+    catLabel:'Nutrição Clínica',
+    objetivo:'Corrigir deficiências nutricionais, modular desequilíbrios hormonais e reduzir processos inflamatórios que contribuem para a perda capilar.',
+    desc:'Nutrientes essenciais ao crescimento capilar, fortalecimento da raiz e redução de gatilhos inflamatórios. Combina alimentos ricos em micronutrientes fundamentais e suporte ao equilíbrio hormonal.',
+    macros:{c:[45,50],p:[20,25],l:[30,35],estrategia:'Sustentar síntese proteica dos fios, reduzir inflamação e garantir energia estável para renovação celular.'},
+    orientacoes:['Remover glúten e caseína apenas se houver sensibilidade comprovada','Aumentar fontes de ômega-3 diariamente','Evitar aditivos químicos e ultraprocessados','Manter rotina alimentar estável'],
+    nutrientes:['Ômega-3: reduz inflamação e melhora circulação no couro cabeludo','Magnésio: equilíbrio hormonal e controle do estresse','Vitamina B6: metabolismo proteico e saúde do couro cabeludo','Probióticos: melhoram absorção de nutrientes','Ferro e zinco: fundamentais para o folículo capilar'],
+    comer:['Peixes e frutos do mar','Vegetais orgânicos, frutas frescas','Oleaginosas: nozes, castanhas, amêndoas','Sementes: linhaça, chia, gergelim'],
+    evitar:['Corantes artificiais e conservantes','Açúcares refinados e ultraprocessados','Dietas muito restritivas: reduzem nutrientes capilares'],
+    monitor:['Ferritina, zinco e vitamina B12','Perfil hormonal: TSH, testosterona livre','Ingestão calórica total: déficits intensos causam queda','Resposta ao tratamento nutricional'],
+    refs:['Finner, A. M. (2013). Nutrition and hair: deficiencies and supplements. Dermatol Clin, 31(1).','Rushton, D. H. (2002). Nutritional factors and hair loss. Clin Exp Dermatol, 27(5).']
+  },
+  {
+    id:'dermatites', cat:'clinica', icon:'🌿', nome:'Dermatites e Psoríase',
+    catLabel:'Nutrição Clínica',
+    objetivo:'Reduzir inflamação cutânea, modular o sistema imunológico e fortalecer a barreira epitelial.',
+    desc:'Alimentos anti-inflamatórios, suporte antioxidante e nutrientes para reparo tecidual. Redução de gatilhos imunológicos, estabilização do microbioma e fortalecimento da barreira protetora da pele.',
+    macros:{c:[55,60],p:[20,25],l:[20,25],estrategia:'Energia estável, redução de inflamação sistêmica e antioxidantes provenientes de vegetais e frutas.'},
+    orientacoes:['Fracionar refeições para equilibrar resposta inflamatória','Reduzir sódio para minimizar inflamação e retenção','Evitar longos períodos de jejum','Priorizar alimentos naturais','Incluir fontes de ômega-3 e antioxidantes diariamente'],
+    nutrientes:['Zinco: regeneração, imunidade e cicatrização','Vitamina K: saúde da pele e modulação inflamatória','Ácido fólico: renovação celular e integridade da pele','BCAA: reparação tecidual','Tiamina (B1): suporte metabólico e neural'],
+    comer:['Carboidratos complexos, proteínas de alta qualidade','Vegetais variados e frutas frescas','Oleaginosas e sementes'],
+    evitar:['Álcool e ultraprocessados','Alimentos muito ricos em sódio','Açúcares refinados e frituras','Alimentos que geram inflamação individual'],
+    monitor:['Intensidade e frequência das crises inflamatórias','Relação entre alimentos e crises','Marcadores inflamatórios: PCR e IL-6','Função intestinal e microbiota'],
+    refs:['Millsop, J. W. et al. (2014). Diet and psoriasis. J Am Acad Dermatol, 71(6).','Calder, P. C. et al. (2017). Dietary factors and low-grade inflammation. Br J Nutr, 117(12).']
+  },
+  {
+    id:'lupus', cat:'clinica', icon:'🌻', nome:'Lúpus (LES)',
+    catLabel:'Nutrição Clínica',
+    objetivo:'Reduzir a resposta inflamatória sistêmica, modular a imunidade e diminuir risco de infecções recorrentes.',
+    desc:'Controle da inflamação, suporte imunológico e prevenção de surtos no Lúpus Eritematoso Sistêmico. Alimentos anti-inflamatórios, nutrientes essenciais para imunidade e proteção do trato digestivo.',
+    macros:{c:[45,50],p:[25,30],l:[25,30],estrategia:'Reduzir inflamação, manter massa magra e fornecer energia estável sem sobrecarregar o sistema imunológico.'},
+    orientacoes:['Utilizar probióticos específicos para suporte imunológico','Reduzir açúcares simples e ultraprocessados','Seguir higiene alimentar rigorosa para evitar infecções','Suplementar vitamina D conforme necessidade','Evitar alimentos crus em períodos de imunossupressão'],
+    nutrientes:['Vitamina D: modulação da resposta imunológica','Vitamina C: antioxidante e suporte à imunidade','Zinco: cicatrização, imunidade e controle inflamatório','Probióticos: equilíbrio da microbiota e imunomodulação','Glutamina: integridade intestinal e redução de inflamação'],
+    comer:['Frutas cítricas e antioxidantes','Vegetais coloridos, proteínas magras','Iogurte natural, oleaginosas e sementes'],
+    evitar:['Açúcares refinados, ultraprocessados','Álcool','Alimentos crus durante imunossupressão','Frituras e gorduras trans'],
+    monitor:['Frequência e intensidade de infecções','Marcadores imunológicos: complemento, PCR, VHS','Vitamina D e B12 regularmente','Peso e composição corporal'],
+    refs:['Aparicio-Soto, M. et al. (2017). An update on diet and nutritional factors in systemic lupus erythematosus. J Nutr Biochem, 45.','Müller, H. et al. (2001). Fasting followed by vegetarian diet in patients with rheumatoid arthritis. Scand J Rheumatol.']
+  },
+  {
+    id:'oncologico', cat:'clinica', icon:'🎗️', nome:'Suporte Oncológico',
+    catLabel:'Nutrição Clínica',
+    objetivo:'Apoiar o organismo durante e após o tratamento oncológico, preservando massa magra e reduzindo efeitos colaterais.',
+    desc:'Suporte nutricional completo considerando impacto do tratamento, toxicidades e alterações digestivas. Prioriza densidade nutricional, digestibilidade e aumento da tolerância alimentar.',
+    macros:{c:[45,50],p:[25,30],l:[25,30],estrategia:'Energia suficiente, preservar massa muscular e favorecer recuperação tecidual durante o tratamento.'},
+    orientacoes:['Fracionar alimentação em 6 a 8 pequenas refeições ao dia','Garantir hidratação frequente: água, chás e água de coco','Preferir preparações de fácil digestão e pouco condimentadas','Ajustar consistência conforme sintomas: sopas, purês, cremes','Considerar suplementação conforme carências e tolerância'],
+    nutrientes:['Proteína: base para imunidade e massa magra','Glutamina: mucosa intestinal e recuperação','Selênio: suporte antioxidante e imunológico','Vitamina D: modulação imune','Ômega-3: ação anti-inflamatória e manutenção do peso'],
+    comer:['Caldos nutritivos, frutas doces e bem higienizadas','Proteínas magras, cereais cozidos','Vegetais bem cozidos, purês e sopas cremosas'],
+    evitar:['Alimentos crus durante neutropenia','Temperos fortes, picantes ou muito aromáticos','Ultraprocessados e açúcar refinado','Álcool'],
+    monitor:['Estado nutricional e peso regularmente','Ingestão alimentar e tolerância','Marcadores laboratoriais: albumina, hemograma','Sintomas: náuseas, alterações do paladar, inapetência'],
+    refs:['Arends, J. et al. (2017). ESPEN guidelines on nutrition in cancer patients. Clin Nutr, 36(1).','Rock, C. L. et al. (2022). American Cancer Society nutrition and physical activity guidelines. CA Cancer J Clin, 72(3).']
+  },
+  {
+    id:'vesícula', cat:'clinica', icon:'🫐', nome:'Pedra na Vesícula',
+    catLabel:'Nutrição Clínica',
+    objetivo:'Reduzir sobrecarga da vesícula biliar, prevenir cólicas e minimizar crises por alimentação leve e fracionada.',
+    desc:'Diminuição do estímulo da vesícula biliar, controle de desconfortos e facilitação do fluxo biliar. Alimentos leves, fibras solúveis e compostos naturais que auxiliam a digestão.',
+    macros:{c:[50,55],p:[20,25],l:[20,25],estrategia:'Reduzir esforço da vesícula, melhorar digestão e evitar estímulos biliares exagerados.'},
+    orientacoes:['Fracionar refeições ao longo do dia para reduzir estímulo biliar','Evitar gorduras saturadas, frituras e preparações pesadas','Aumentar fibras solúveis','Manter peso corporal adequado','Avaliar tolerância individual a ovos e gorduras naturais'],
+    nutrientes:['Taurina: favorece formação de bile mais fluida','Colina: metabolismo das gorduras','Vitamina C: reduz formação de cálculos biliares','Fibras solúveis: auxiliam digestão e trânsito','Cúrcuma: ação colagoga suave'],
+    comer:['Proteínas magras: frango, peixe, clara de ovo','Arroz, batata, mandioca, pão integral','Vegetais cozidos, frutas suaves','Chá de alcachofra, dente-de-leão'],
+    evitar:['Frituras e gorduras saturadas em excesso','Carnes gordas e embutidos','Queijos gordurosos e sorvetes','Temperos fortes e molhos pesados'],
+    monitor:['Frequência de crises de dor biliar','Tolerância às gorduras após refeições','Peso e circunferência abdominal','Exames de imagem conforme evolução'],
+    refs:['Stokes, C. S. et al. (2014). Dietary habits and risk of cholecystectomy. Scand J Gastroenterol, 49(10).','Tsai, C. J. et al. (2004). Dietary protein and risk of cholecystectomy. Arch Intern Med, 164(20).']
+  },
+  {
+    id:'mediterranea', cat:'clinica', icon:'🫒', nome:'Dieta Mediterrânea',
+    catLabel:'Nutrição Clínica',
+    objetivo:'Promover saúde cardiovascular, modular inflamações e apoiar longevidade por padrão alimentar natural e diverso.',
+    desc:'Padrão alimentar baseado em vegetais, frutas, azeite de oliva, leguminosas e peixes. Benefícios cardiovasculares, metabólicos e na longevidade bem documentados.',
+    macros:{c:[45,55],p:[30,35],l:[15,20],estrategia:'Gorduras monoinsaturadas protetoras, proteínas moderadas e carboidratos integrais para energia estável.'},
+    orientacoes:['Priorizar alimentos frescos e sazonais','Usar azeite extra virgem como principal fonte de gordura','Consumir hortaliças e frutas em abundância','Comer peixes e frutos do mar pelo menos 2x por semana','Limitar carnes vermelhas a consumo eventual','Incluir laticínios com moderação'],
+    nutrientes:['Polifenóis: antioxidantes e anti-inflamatórios','Ômega-3: saúde cardiovascular e cerebral','Fibras: controle glicêmico e saúde intestinal','Vitamina E: proteção celular','Magnésio: função cardiovascular e metabólica'],
+    comer:['Azeite extra virgem, peixes gordos','Leguminosas: feijão, lentilha, grão-de-bico','Cereais integrais: quinoa, aveia, arroz integral','Nozes, amêndoas, castanhas','Vegetais variados, frutas, ervas frescas'],
+    evitar:['Carnes vermelhas em excesso','Laticínios gordurosos em excesso','Ultraprocessados e fast food','Açúcares adicionados','Gorduras trans'],
+    monitor:['Perfil lipídico e marcadores cardiovasculares','Glicemia e pressão arterial','Peso e circunferência abdominal','Adesão ao padrão alimentar'],
+    refs:['Estruch, R. et al. (2018). Primary prevention of cardiovascular disease with PREDIMED diet. N Engl J Med, 378(25).','Sofi, F. et al. (2008). Adherence to Mediterranean diet and health status. BMJ, 337, a1344.']
+  },
+  // MATERNO INFANTIL
+  {
+    id:'introducao-alimentar', cat:'materno', icon:'🍼', nome:'Introdução Alimentar',
+    catLabel:'Materno Infantil',
+    objetivo:'Garantir alimentação segura, nutritiva e evolutiva na transição do aleitamento exclusivo para alimentos sólidos.',
+    desc:'Introdução a partir dos 6 meses, com foco em segurança, variedade alimentar e estímulo sensorial. Alimentos naturais, texturas adequadas e nutrientes essenciais.',
+    macros:{c:[45,50],p:[35,40],l:[15,20],estrategia:'Apoiar rápido crescimento, maturação cerebral e alta demanda energética do primeiro ano de vida.'},
+    orientacoes:['Apresentar variedade de sabores e cores desde o início','Respeitar sinais de fome e saciedade','Manter amamentação sob livre demanda','Evitar açúcar, sal e ultraprocessados','Oferecer alimentos seguros em tamanho e textura adequados','Introduzir um alimento de cada vez para identificar alergias'],
+    nutrientes:['Ferro: prevenção de anemia ferropriva da infância','Zinco: crescimento e imunidade','Vitamina D: saúde óssea e imunidade','DHA: desenvolvimento cerebral e visual','Vitamina A: imunidade e crescimento'],
+    comer:['Papas de legumes e cereais','Frutas amassadas ou em pedaços macios','Proteínas: frango desfiado, peixe, ovo, carne moída','Leguminosas bem cozidas e amassadas'],
+    evitar:['Açúcar e sal','Mel (risco de botulismo até 1 ano)','Ultraprocessados e industrializados','Alimentos com alto risco de engasgo: uvas inteiras, nozes'],
+    monitor:['Curva de crescimento: peso e altura mensalmente','Aceitação e variedade alimentar','Sinais de alergia alimentar após introdução','Ingestão de ferro e vitamina D'],
+    refs:['Fewtrell, M. et al. (2017). Complementary feeding: a position paper by ESPGHAN. J Pediatr Gastroenterol Nutr, 64(1).','WHO (2023). Infant and young child feeding. Geneva: World Health Organization.']
+  },
+  // RECUPERAÇÃO
+  {
+    id:'pos-bariatrica', cat:'recuperacao', icon:'⚕️', nome:'Pós Bariátrica',
+    catLabel:'Recuperação',
+    objetivo:'Promover recuperação adequada após a cirurgia, prevenir deficiências nutricionais e apoiar equilíbrio hormonal.',
+    desc:'Ajuste gradual da alimentação ao novo volume gástrico, regulação endócrina e adaptação metabólica no período pós-operatório.',
+    macros:{c:[45,50],p:[20,25],l:[25,30],estrategia:'Adaptar gradualmente, priorizando compostos que favorecem equilíbrio hormonal e digestão adequada ao novo volume.'},
+    orientacoes:['Adaptar consistência das refeições às fases pós-operatórias: líquida, pastosa, sólida','Comer devagar, mastigar muito bem','Separar líquidos das refeições sólidas','Suplementar conforme protocolo: proteína, vitaminas, minerais','Acompanhar com equipe multidisciplinar'],
+    nutrientes:['Proteína: preservação de massa magra','Vitamina B12: neurológico e hematológico','Ferro: prevenção de anemia','Cálcio e vitamina D: saúde óssea','Zinco e magnésio: metabolismo e imunidade'],
+    comer:['Proteínas magras: frango, peixe, ovo','Laticínios desnatados','Vegetais cozidos, frutas amassadas','Leguminosas bem cozidas'],
+    evitar:['Alimentos muito açucarados: risco de dumping','Frituras e gorduras em excesso','Bebidas gasosas','Álcool'],
+    monitor:['Vitamina B12, ferro e ferritina trimestralmente','Hemograma completo','Peso e composição corporal','Sintomas de dumping e tolerância alimentar'],
+    refs:['Mechanick, J. I. et al. (2019). Clinical practice guidelines for bariatric surgery. Obesity, 27(S1).','Aills, L. et al. (2008). ASMBS allied health nutritional guidelines for bariatric surgery. Surg Obes Relat Dis.']
+  },
+  {
+    id:'pos-cirurgico', cat:'recuperacao', icon:'🏥', nome:'Pós Cirúrgico Geral',
+    catLabel:'Recuperação',
+    objetivo:'Favorecer cicatrização, reduzir inflamação e restaurar estado nutricional durante a recuperação pós-operatória.',
+    desc:'Suporte nutricional no período de recuperação cirúrgica. Foco em densidade nutricional, redução de fadiga e fortalecimento mitocondrial por nutrientes estratégicos.',
+    macros:{c:[45,50],p:[25,30],l:[25,30],estrategia:'Implementação progressiva priorizando substratos que ofereçam suporte mitocondrial e melhora do metabolismo energético.'},
+    orientacoes:['Implementar dieta de forma progressiva conforme tolerância','Incluir fontes de Coenzima Q10 regularmente','Evitar açúcar simples e alimentos de alto índice glicêmico','Manter rotina de sono organizada','Priorizar atividades leves para auxiliar circulação e recuperação'],
+    nutrientes:['Coenzima Q10: produção de energia e reparação celular','L-carnitina: metabolismo energético','Magnésio: função muscular e recuperação','Vitaminas do complexo B: energia celular','Proteína: cicatrização e massa magra'],
+    comer:['Proteínas magras: carnes brancas, peixe, ovos','Caldos nutritivos e sopas cremosas','Vegetais cozidos, frutas suaves','Cereais integrais cozidos'],
+    evitar:['Ultraprocessados e açúcares refinados','Gorduras saturadas em excesso','Álcool','Alimentos de difícil digestão no pós-operatório imediato'],
+    monitor:['Estado nutricional e cicatrização','Marcadores inflamatórios: PCR e albumina','Peso e ingestão calórica','Tolerância alimentar e evolução da dieta'],
+    refs:['Weimann, A. et al. (2017). ESPEN guideline: Clinical nutrition in surgery. Clin Nutr, 36(3).','Calder, P. C. et al. (2014). Dietary factors and peri-operative outcomes. J Parenter Enteral Nutr.']
+  },
+  {
+    id:'pos-covid', cat:'recuperacao', icon:'🫁', nome:'Recuperação Pós Covid',
+    catLabel:'Recuperação',
+    objetivo:'Apoiar recuperação do sistema imunológico, reduzir inflamação persistente e restaurar energia após Covid-19.',
+    desc:'Estratégia nutricional para síndrome pós-Covid, com foco em redução de inflamação crônica, suporte imunológico, melhora da função pulmonar e combate à fadiga prolongada.',
+    macros:{c:[45,50],p:[25,30],l:[25,30],estrategia:'Densidade nutricional elevada, anti-inflamatórios potentes e suporte mitocondrial para recuperação energética.'},
+    orientacoes:['Aumentar antioxidantes para combater estresse oxidativo residual','Priorizar alimentos anti-inflamatórios','Manter hidratação adequada','Fracionar as refeições se houver fadiga ou inapetência','Reintroduzir atividade física gradualmente com suporte nutricional'],
+    nutrientes:['Vitamina D: modulação imune e pulmonar','Zinco: imunidade e cicatrização','Vitamina C: antioxidante e suporte imune','Ômega-3: resolução da inflamação','Coenzima Q10: recuperação energética mitocondrial'],
+    comer:['Peixes gordos, frutos do mar','Frutas cítricas e vermelhas','Vegetais coloridos','Oleaginosas, sementes','Chá de gengibre e cúrcuma'],
+    evitar:['Ultraprocessados e açúcares em excesso','Álcool','Alimentos pró-inflamatórios em excesso','Gorduras trans'],
+    monitor:['Níveis de vitamina D, zinco e B12','Capacidade respiratória e tolerância ao esforço','Qualidade do sono e fadiga','PCR e marcadores inflamatórios'],
+    refs:['Calder, P. C. et al. (2020). Optimal nutritional status for a well-functioning immune system is an important factor in COVID-19 outcomes. Nutrients, 12(7).','Goddek, S. (2020). Vitamin D3 and K2 and their potential contribution to reducing the COVID-19 mortality rate. Int J Infect Dis, 99.']
+  },
+];
+
+// ══ CATEGORIAS ════════════════════════════════════
+const CAT_STYLE = {
+  'saude-mulher':  {icon:'🌸',bg:'#fdf0f6',border:'rgba(192,57,115,.15)',tagClass:'tag-mulher'},
+  'digestivo':     {icon:'🫃',bg:'#fff8ee',border:'rgba(180,120,30,.15)', tagClass:'tag-digestivo'},
+  'metabolismo':   {icon:'⚗️',bg:'var(--blue-pale)',border:'rgba(37,99,168,.15)',tagClass:'tag-metabolismo'},
+  'clinica':       {icon:'🔬',bg:'var(--green-pale)',border:'rgba(42,110,71,.15)',tagClass:'tag-clinica'},
+  'materno':       {icon:'🍼',bg:'var(--purple-pale)',border:'rgba(107,33,168,.15)',tagClass:'tag-materno'},
+  'recuperacao':   {icon:'🏥',bg:'#fff8ee',border:'rgba(180,120,30,.15)',tagClass:'tag-recuperacao'},
+};
+const CAT_LABEL = {
+  'saude-mulher':'Saúde da Mulher','digestivo':'Saúde Digestiva',
+  'metabolismo':'Metabolismo','clinica':'Nutrição Clínica',
+  'materno':'Materno Infantil','recuperacao':'Recuperação'
+};
+
+// ══ RENDERIZAR GRID ═══════════════════════════════
+function renderGrid(){
+  const grid = document.getElementById('protoGrid');
+  grid.innerHTML = PROTOS.map(p=>{
+    const cs = CAT_STYLE[p.cat];
+    return `
+    <div class="pcard cat-${p.cat}" data-cat="${p.cat}" onclick="openProto('${p.id}')">
+      <div class="pcard-top">
+        <div class="pcard-icon" style="background:${cs.bg};border-color:${cs.border}">${p.icon}</div>
+        <div class="pcard-name">${p.nome}</div>
+      </div>
+      <div class="pcard-obj">${p.objetivo.substring(0,90)}...</div>
+      <div class="pcard-tag ${cs.tagClass}">${CAT_LABEL[p.cat]}</div>
+    </div>`;
+  }).join('');
+}
+
+// ══ ABRIR PROTOCOLO ════════════════════════════════
+function openProto(id){
+  const p = PROTOS.find(x=>x.id===id);
+  if(!p) return;
+  const cs = CAT_STYLE[p.cat];
+
+  document.getElementById('p-ico').textContent = p.icon;
+  document.getElementById('p-ico').style.cssText = `background:${cs.bg};border:1px solid ${cs.border};font-size:26px;width:50px;height:50px;border-radius:12px;display:flex;align-items:center;justify-content:center`;
+  document.getElementById('p-name').textContent = p.nome;
+  document.getElementById('p-cat').textContent = p.catLabel;
+
+  const c = p.macros.c, pr = p.macros.p, l = p.macros.l;
+  // Médias e normalização para 100%
+  const cMidRaw = (c[0]+c[1])/2, pMidRaw = (pr[0]+pr[1])/2, lMidRaw = (l[0]+l[1])/2;
+  const total = cMidRaw + pMidRaw + lMidRaw;
+  const cPct = Math.round(cMidRaw/total*100);
+  const pPct = Math.round(pMidRaw/total*100);
+  const lPct = 100 - cPct - pPct; // garante soma exata de 100%
+
+  document.getElementById('p-body').innerHTML = `
+    <div class="sec">
+      <div class="sec-title">Objetivo</div>
+      <div class="obj-box">${p.desc}</div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-title">Distribuição de Macronutrientes</div>
+      <div class="macros-row">
+        <div class="macro-card">
+          <div class="macro-pct">${c[0]}–${c[1]}%</div>
+          <div class="macro-label">Carboidratos</div>
+        </div>
+        <div class="macro-card">
+          <div class="macro-pct">${pr[0]}–${pr[1]}%</div>
+          <div class="macro-label">Proteínas</div>
+        </div>
+        <div class="macro-card">
+          <div class="macro-pct">${l[0]}–${l[1]}%</div>
+          <div class="macro-label">Lipídeos</div>
+        </div>
+      </div>
+      <div class="macro-bar-wrap">
+        <div class="macro-bar-fill carb" style="width:${cPct}%"></div>
+        <div class="macro-bar-fill prot" style="width:${pPct}%"></div>
+        <div class="macro-bar-fill lip"  style="width:${lPct}%"></div>
+      </div>
+      <div class="macro-leg">
+        <div class="ml-item"><div class="ml-dot" style="background:#9d8768"></div>Carboidratos ${cPct}%</div>
+        <div class="ml-item"><div class="ml-dot" style="background:#2a6e47"></div>Proteínas ${pPct}%</div>
+        <div class="ml-item"><div class="ml-dot" style="background:#b8860b"></div>Lipídeos ${lPct}%</div>
+      </div>
+      <div class="macro-estrategia">${p.macros.estrategia}</div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-title">Orientações Essenciais</div>
+      <div class="item-list">${p.orientacoes.map(o=>`<div class="list-item orientacao"><span class="li-ico">→</span>${o}</div>`).join('')}</div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-title">Nutrientes Prioritários</div>
+      <div class="item-list">${p.nutrientes.map(n=>`<div class="list-item nutriente"><span class="li-ico">💊</span>${n}</div>`).join('')}</div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-title">Alimentos e Refeições Sugeridas</div>
+      <div class="item-list">${p.comer.map(c=>`<div class="list-item comer"><span class="li-ico">✓</span>${c}</div>`).join('')}</div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-title">Alimentos a Diminuir ou Evitar</div>
+      <div class="item-list">${p.evitar.map(e=>`<div class="list-item evitar"><span class="li-ico">✕</span>${e}</div>`).join('')}</div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-title">O que Acompanhar como Nutricionista</div>
+      <div class="item-list">${p.monitor.map(m=>`<div class="list-item monitor"><span class="li-ico">📋</span>${m}</div>`).join('')}</div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-title">Referências Bibliográficas</div>
+      <div class="refs">${p.refs.map(r=>`<div class="ref-item">${r}</div>`).join('')}</div>
+    </div>
+  `;
+
+  document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+  document.getElementById('panel-proto').classList.add('active');
+  document.getElementById('mainArea').scrollTo({top:0,behavior:'smooth'});
+  window._currentProto = p;
+}
+
+function showHome(){
+  document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+  document.getElementById('panel-home').classList.add('active');
+  document.getElementById('mainArea').scrollTo({top:0,behavior:'smooth'});
+}
+
+// ══ FILTRO ════════════════════════════════════════
+function filterHome(cat, btn){
+  document.querySelectorAll('.hf-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  document.querySelectorAll('.pcard').forEach(c=>{
+    c.classList.toggle('hidden', cat!=='all' && c.dataset.cat!==cat);
+  });
+}
+
+// ══ COPIAR PROTOCOLO ══════════════════════════════
+function copyProto(){
+  const p = window._currentProto; if(!p) return;
+  const btn = document.getElementById('btnCopyAll');
+  const txt = [
+    `PROTOCOLO: ${p.nome.toUpperCase()}`,
+    `Categoria: ${p.catLabel}`,
+    '',
+    `OBJETIVO: ${p.objetivo}`,
+    '',
+    `DESCRIÇÃO: ${p.desc}`,
+    '',
+    `MACRONUTRIENTES:`,
+    `  Carboidratos: ${p.macros.c[0]}–${p.macros.c[1]}%`,
+    `  Proteínas: ${p.macros.p[0]}–${p.macros.p[1]}%`,
+    `  Lipídeos: ${p.macros.l[0]}–${p.macros.l[1]}%`,
+    `  Estratégia: ${p.macros.estrategia}`,
+    '',
+    `ORIENTAÇÕES ESSENCIAIS:`,
+    ...p.orientacoes.map(o=>`  , ${o}`),
+    '',
+    `NUTRIENTES PRIORITÁRIOS:`,
+    ...p.nutrientes.map(n=>`  , ${n}`),
+    '',
+    `ALIMENTOS SUGERIDOS:`,
+    ...p.comer.map(c=>`  , ${c}`),
+    '',
+    `ALIMENTOS A EVITAR:`,
+    ...p.evitar.map(e=>`  , ${e}`),
+    '',
+    `ACOMPANHAMENTO:`,
+    ...p.monitor.map(m=>`  , ${m}`),
+    '',
+    `REFERÊNCIAS:`,
+    ...p.refs.map(r=>`  ${r}`),
+  ].join('\n');
+
+  const ok = () => {
+    const orig = btn.innerHTML;
+    btn.classList.add('copied');
+    btn.innerHTML = '✓ Copiado!';
+    setTimeout(()=>{ btn.innerHTML=orig; btn.classList.remove('copied'); }, 2200);
+  };
+  if(navigator.clipboard?.writeText) navigator.clipboard.writeText(txt).then(ok).catch(()=>fb(txt,ok));
+  else fb(txt,ok);
+}
+function fb(t,cb){const ta=document.createElement('textarea');ta.value=t;ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.focus();ta.select();try{document.execCommand('copy');if(cb)cb();}catch(e){}document.body.removeChild(ta);}
+
+// ══ BUSCA ═════════════════════════════════════════
+function doSearch(q){
+  const dr = document.getElementById('searchDrop');
+  if(!q||q.length<2){dr.classList.remove('open');return;}
+  const ql = q.toLowerCase();
+  const hits = PROTOS.filter(p=>
+    p.nome.toLowerCase().includes(ql) ||
+    p.objetivo.toLowerCase().includes(ql) ||
+    p.catLabel.toLowerCase().includes(ql) ||
+    p.orientacoes.some(o=>o.toLowerCase().includes(ql)) ||
+    p.nutrientes.some(n=>n.toLowerCase().includes(ql)) ||
+    p.comer.some(c=>c.toLowerCase().includes(ql)) ||
+    p.evitar.some(e=>e.toLowerCase().includes(ql))
+  ).slice(0,8);
+
+  if(!hits.length){
+    dr.innerHTML='<div class="sd-empty">Nenhum protocolo encontrado</div>';
+  } else {
+    dr.innerHTML = hits.map(p=>`
+      <div class="sd-item" onclick="openProto('${p.id}');closeDrop()">
+        <span style="font-weight:500">${p.icon} ${p.nome}</span>
+        <span class="sd-cat">${p.catLabel}</span>
+      </div>`).join('');
+  }
+  dr.classList.add('open');
+}
+function closeDrop(){
+  document.getElementById('searchDrop').classList.remove('open');
+  document.getElementById('searchInput').value='';
+}
+document.addEventListener('click',e=>{if(!e.target.closest('.s-sw'))closeDrop();});
+
+// ══ INIT ══════════════════════════════════════════
+renderGrid();
+</script>
+</body>
+</html>
